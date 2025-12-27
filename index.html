@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Digital Detox App</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;}
+body{
+ font-family:'Segoe UI',sans-serif;
+ background: linear-gradient(135deg,#a1c4fd,#c2e9fb);
+ min-height:100vh;
+ color:#111;
+ display:flex;
+ justify-content:center;
+ align-items:center;
+ overflow-x:hidden;
+}
+.app{
+ max-width:400px;
+ width:100%;
+ background:#f5f5f5;
+ border-radius:25px;
+ overflow:hidden;
+ box-shadow:0 10px 25px rgba(0,0,0,0.2);
+ transition: all 0.3s ease;
+}
+.header{
+ padding:20px;
+ text-align:center;
+ background:#4f46e5;
+ color:#fff;
+ border-bottom:1px solid rgba(0,0,0,0.1);
+}
+.header h1{ font-size:1.5rem; }
+.screen{ display:none; padding:20px; animation:fade 0.3s ease; transition: all 0.3s ease;}
+.screen.active{ display:block; transform:translateX(0); opacity:1; }
+@keyframes fade{ from{opacity:0;transform:translateY(10px);} to{opacity:1;transform:translateY(0);} }
+.card{
+ background:#ffffff;
+ padding:15px;
+ border-radius:18px;
+ margin-bottom:15px;
+ box-shadow:0 5px 15px rgba(0,0,0,0.1);
+ transition: transform 0.2s ease, box-shadow 0.2s ease;
+ cursor:pointer;
+}
+.card:hover{
+ transform: translateY(-3px);
+ box-shadow:0 10px 20px rgba(0,0,0,0.15);
+}
+button{
+ width:100%;
+ padding:12px;
+ border:none;
+ border-radius:15px;
+ font-weight:600;
+ cursor:pointer;
+ background:#4f46e5;
+ color:#fff;
+ margin-top:8px;
+ transition: transform 0.2s ease, background 0.2s ease;
+}
+button:hover{
+ transform: translateY(-2px);
+ background:#6366f1;
+}
+input, select{
+ width:100%;
+ padding:10px;
+ border-radius:12px;
+ border:none;
+ margin-top:8px;
+}
+.nav{
+ display:flex;
+ justify-content:space-around;
+ padding:10px;
+ background:#e5e7eb;
+ border-top:1px solid rgba(0,0,0,0.1);
+}
+.nav button{
+ background:none;
+ color:#4b5563;
+ display:flex;
+ flex-direction:column;
+ align-items:center;
+ font-size:1.2rem;
+ transition: transform 0.2s ease;
+}
+.nav button:hover{ transform: scale(1.2); }
+.nav button.active{ color:#4f46e5; }
+li{
+ list-style:none;
+ background:#f3f4f6;
+ color:#111;
+ padding:10px;
+ border-radius:10px;
+ margin-top:6px;
+ display:flex;
+ justify-content:space-between;
+ align-items:center;
+ transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+li:hover{
+ transform: translateX(3px);
+ box-shadow:0 5px 15px rgba(0,0,0,0.2);
+}
+li span{font-weight:bold; cursor:pointer; color:#4f46e5;}
+</style>
+</head>
+
+<body>
+<div class="app">
+
+<!-- LOGIN -->
+<div class="screen active" id="login">
+  <div class="header"><h1>Digital Detox</h1></div>
+  <div class="card">
+    <h3>Welcome 👋</h3>
+    <input id="username" placeholder="Enter your name"/>
+    <button onclick="login()">Enter App</button>
+  </div>
+</div>
+
+<!-- HOME -->
+<div class="screen" id="home">
+  <div class="header"><h1 id="userTitle"></h1></div>
+  <div class="card">
+    <p>📊 Enter hours spent today:</p>
+    <input type="number" id="hoursSpent" placeholder="Hours (e.g., 5)" min="0" step="0.1"/>
+    <button onclick="updateStats()">Submit</button>
+    <p>🎯 Target: <input type="number" id="targetHoursInput" value="4" min="0" style="width:80px;" onchange="updateTarget()"> hrs</p>
+    <p id="alertText"></p>
+  </div>
+  <div class="card">
+    <p>💬 Quote of the day:</p>
+    <p id="quote"></p>
+  </div>
+  <div class="card">
+    <p>🔥 Daily Challenge</p>
+    <p id="dailyChallenge"></p>
+  </div>
+  <div class="card">
+    <p>🏆 Streak Tracker</p>
+    <p id="streak">3 days in a row!</p>
+  </div>
+  <div class="card">
+    <p>🗓 Weekly Summary</p>
+    <p>Total hours this week: <span id="weeklyHours">0</span></p>
+  </div>
+  <div class="card">
+    <p>🎖 Achievements</p>
+    <p id="achievements">No badges yet</p>
+  </div>
+</div>
+
+<!-- MUSIC -->
+<div class="screen" id="music">
+  <div class="card">
+    <h3>🎵 Focus Music</h3>
+    <p id="song">Lo-fi Chill</p>
+    <button onclick="newSong()">New Song</button>
+  </div>
+</div>
+
+<!-- GAME -->
+<div class="screen" id="game">
+  <div class="card">
+    <h3>🎮 Tap Challenge</h3>
+    <p>Clicks: <span id="count">0</span></p>
+    <button onclick="tap()">Tap Me</button>
+  </div>
+  <div class="card">
+    <h3>🧘 Mini Meditation</h3>
+    <button onclick="startMeditation()">Start 1-min Timer</button>
+    <p id="meditationMsg"></p>
+  </div>
+  <div class="card">
+    <h3>⏱ Pomodoro Timer</h3>
+    <button onclick="startPomodoro()">Start 25-min Focus</button>
+    <p id="pomodoroMsg"></p>
+  </div>
+</div>
+
+<!-- TODO -->
+<div class="screen" id="todo">
+  <div class="card">
+    <h3>📝 To-Do & Rewards</h3>
+    <input id="task" placeholder="New task"/>
+    <button onclick="addTask()">Add</button>
+    <ul id="tasks"></ul>
+    <p>⭐ Completed tasks: <span id="rewards">0</span></p>
+  </div>
+</div>
+
+<!-- NAV -->
+<div class="nav">
+  <button onclick="show('home',this)" class="active">🏠</button>
+  <button onclick="show('music',this)">🎵</button>
+  <button onclick="show('game',this)">🎮</button>
+  <button onclick="show('todo',this)">📝</button>
+</div>
+
+</div>
+
+<script>
+let clicks=0;
+let completedTasks=0;
+let weeklyHours = 0;
+let targetHours = 4;
+const quotes=["Discipline beats motivation.","Your future self will thank you.","Focus today, freedom tomorrow.","Small steps every day lead to big results.","Stay focused. Stay unstoppable."];
+const songs=["Lo-fi Chill","Instrumental Piano","Nature Sounds","Deep Focus Beats"];
+const challenges=["No social media for 1 hour","Read 10 pages of a book","Meditate 5 mins","Complete 1 focus session"];
+let achievements=[];
+
+function login(){
+ const name=document.getElementById("username").value||"User";
+ document.getElementById("userTitle").innerText="Hi, "+name;
+ document.getElementById("login").classList.remove("active");
+ document.getElementById("home").classList.add("active");
+ document.getElementById("quote").innerText=quotes[new Date().getDate()%quotes.length];
+ document.getElementById("dailyChallenge").innerText=challenges[Math.floor(Math.random()*challenges.length)];
+ updateWeekly();
+ updateAchievements();
+}
+
+function show(id,btn){
+ document.querySelectorAll(".screen").forEach(s=>s.classList.remove("active"));
+ document.getElementById(id).classList.add("active");
+ document.querySelectorAll(".nav button").forEach(b=>b.classList.remove("active"));
+ btn.classList.add("active");
+}
+
+function updateStats(){
+ const hrs=parseFloat(document.getElementById("hoursSpent").value);
+ if(isNaN(hrs)){ alert("Enter a number!"); return; }
+ const alertText=document.getElementById("alertText");
+ if(hrs>targetHours){
+   alertText.innerText="⚠ You exceeded your target! Reduce screen time!";
+ } else if(hrs<targetHours){
+   alertText.innerText="✅ Great! You are under your target!";
+   addAchievement("Under Target!");
+ } else{
+   alertText.innerText="👌 You met your target exactly!";
+   addAchievement("Target Achieved!");
+ }
+ weeklyHours += hrs;
+ updateWeekly();
+ updateAchievements();
+}
+
+function updateWeekly(){ document.getElementById("weeklyHours").innerText = weeklyHours.toFixed(1); }
+function updateTarget(){ const t=parseFloat(document.getElementById("targetHoursInput").value); if(!isNaN(t) && t>=0) targetHours=t; }
+function tap(){ clicks++; document.getElementById("count").innerText=clicks; if(clicks%50===0) addAchievement("Tap Master!"); }
+function addTask(){ const t=document.getElementById("task").value; if(!t) return; const li=document.createElement("li"); li.innerHTML=t+' <span onclick="completeTask(this)">✔</span>'; document.getElementById("tasks").appendChild(li); document.getElementById("task").value=""; }
+function completeTask(el){ el.parentElement.remove(); completedTasks++; document.getElementById("rewards").innerText=completedTasks; if(completedTasks%5===0) addAchievement("Task Star!"); }
+function newSong(){ document.getElementById("song").innerText=songs[Math.floor(Math.random()*songs.length)]; }
+function startMeditation(){ document.getElementById("meditationMsg").innerText="Meditation started..."; setTimeout(()=>{document.getElementById("meditationMsg").innerText="1-min complete!"; addAchievement("Meditation Done!");},60000); }
+function startPomodoro(){ document.getElementById("pomodoroMsg").innerText="Focus session started!"; let time=25*60; const interval=setInterval(()=>{ time--; const min=Math.floor(time/60); const sec=time%60; document.getElementById("pomodoroMsg").innerText=`${min}m ${sec}s remaining`; if(time<=0){ clearInterval(interval); document.getElementById("pomodoroMsg").innerText="Focus session complete!"; addAchievement("Pomodoro Complete!");} },1000); }
+function addAchievement(text){ if(!achievements.includes(text)){ achievements.push(text); updateAchievements(); } }
+function updateAchievements(){ document.getElementById("achievements").innerText=achievements.length>0?achievements.join(" | "):"No badges yet"; }
+</script>
+</body>
+</html>
